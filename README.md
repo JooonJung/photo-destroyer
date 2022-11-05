@@ -31,6 +31,11 @@
 
 ## 개발 가이드
 
+### 디렉토리 최신화
+
+- `git fetch` : 변경 사항 여부, 충돌 여부 확인
+- `git pull` : 변경사항 로컬로 받아오기
+
 ### 서버 열기
 
 - server 디렉토리에서
@@ -47,14 +52,17 @@
   - `npm run start-server` : 서버 실행
 
 ### DB 셋업
+
 - flask db init (최초 1번)
 - flask db migrate (DB 바뀔 때마다)
 - flask db upgrade
 
 ### DB 데이터 추가-파이썬에서
+
+- `flask shell` : 플라스크 쉘 진입
 - `from models import Model`
 - `from db import db`
 
-- `db.session.add(q)`
+- `db.session.add(<instance_name>)`
 - `db.session.commit()`
 - `db.session.rollback()`
