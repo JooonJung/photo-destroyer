@@ -33,15 +33,28 @@
 
 ### 서버 열기
 
-- client 디렉토리에서
-
-  - `npm install` : 새로운 노드 패키지 설치
-
 - server 디렉토리에서
 
   - `python3 -m venv venv` : 가상환경 설치
   - `source venv/bin/activate` : 가상환경 진입
   - `pip3 install -r requirements.txt` : 새로운 pip 패키지 설치
+  - `pip freeze > requirements.txt` : 패키지 목록 생성(commit 하기 전에 꼭 생성하기)
 
-- `npm start` : 실행
-- `npm run start-server` : 서버 실행
+- client 디렉토리에서
+
+  - `npm install` : 새로운 노드 패키지 설치
+  - `npm start` : 실행
+  - `npm run start-server` : 서버 실행
+
+### DB 셋업
+- flask db init (최초 1번)
+- flask db migrate (DB 바뀔 때마다)
+- flask db upgrade
+
+### DB 데이터 추가-파이썬에서
+- `from models import Model`
+- `from db import db`
+
+- `db.session.add(q)`
+- `db.session.commit()`
+- `db.session.rollback()`
