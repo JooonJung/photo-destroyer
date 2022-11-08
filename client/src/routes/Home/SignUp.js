@@ -8,13 +8,18 @@ import {
 import { Input } from "@chakra-ui/input";
 import { Button } from "@chakra-ui/button";
 import { Heading, Text, VStack } from "@chakra-ui/layout";
-import { Form, Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { postSignUp } from "./api";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
 	const { register, handleSubmit } = useForm();
+	const navigate = useNavigate();
 	const onSubmit = async (data) => {
 		const response = await postSignUp(data);
+		if (response.status === 200) {
+			navigate("/");
+		}
 	};
 
 	return (

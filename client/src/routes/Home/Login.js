@@ -9,10 +9,14 @@ import { Input } from "@chakra-ui/input";
 import { Button } from "@chakra-ui/button";
 import { Heading, Text, VStack } from "@chakra-ui/layout";
 import { Form, Link as RouterLink } from "react-router-dom";
+import { postLogin } from "./api";
 
 const Login = () => {
 	const { register, handleSubmit } = useForm();
-	const onSubmit = (data) => console.log(data);
+	const onSubmit = async (data) => {
+		const response = await postLogin(data);
+		console.log(response);
+	};
 
 	return (
 		<VStack>
@@ -22,11 +26,19 @@ const Login = () => {
 				<VStack as={"form"} onSubmit={handleSubmit(onSubmit)} w={"100%"}>
 					<FormControl w={"100%"}>
 						<FormLabel>이메일</FormLabel>
-						<Input placeholder={"example@mail.com"} type="email" />
+						<Input
+							placeholder={"example@mail.com"}
+							type="email"
+							{...register("email")}
+						/>
 					</FormControl>
 					<FormControl w={"100%"} pb={30}>
 						<FormLabel>비밀번호</FormLabel>
-						<Input type="password" placeholder={"비밀번호"} />
+						<Input
+							type="password"
+							placeholder={"비밀번호"}
+							{...register("password")}
+						/>
 					</FormControl>
 					<Button type={"submit"} w={"100%"} bg={"#BCCEF8"} color={"white"}>
 						로그인
