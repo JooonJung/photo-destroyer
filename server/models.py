@@ -24,8 +24,36 @@ class User(db.Model):
     def verify_password(self, pwd):
         return check_password_hash(self.password, pwd)
 
-# 캐쉬부여
+    def numberOfPhotos(self):
+        return len(self.photo_user)
 
+    def numberOfAlbums(self):
+        return len(self.album_user)
+
+    @property
+    def serializeWithoutPassword(self):
+        return {
+            'id' : self.id,
+            'username': self.username,
+            'email': self.email,
+            'numberOfPhotos' : self.numberOfPhotos(),
+            'numberOfAlbums' : self.numberOfAlbums(),
+            'createdAt': str(self.createdAt),
+            'updatedAt': str(self.updatedAt),
+        }
+
+    @property
+    def serialize(self):
+        return {
+            'id' : self.id,
+            'username': self.username,
+            'email': self.email,
+            'numberOfPhotos' : self.numberOfPhotos(),
+            'numberOfAlbums' : self.numberOfAlbums(),
+            'password': self.password,
+            'createdAt': self.createdAt,
+            'updatedAt': self.updatedAt
+        }
 
 
 class Photo(db.Model):
