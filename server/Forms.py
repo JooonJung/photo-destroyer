@@ -28,3 +28,19 @@ class RegisterForm(Form):
 class LoginForm(Form):
     email = StringField('email', validators=[DataRequired("missing email")])
     password = PasswordField('password', validators=[DataRequired("missing password")])
+
+
+class AccountForm(Form):
+    username = StringField('username', validators=[
+        DataRequired(message="missing username"), 
+        Length(min=2, max=25),
+        ])
+    email = EmailField('email', validators=[
+        DataRequired(message="missing email"), 
+        Email(),
+        ])
+    password = PasswordField('password', validators=[
+        DataRequired("missing password"), 
+        EqualTo('passwordConfirm', 'wrong password confirmation'),
+        ])
+    passwordConfirm = PasswordField('passwordConfirm', validators=[DataRequired("missing passwordConfirm")])
