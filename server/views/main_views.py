@@ -1,7 +1,7 @@
 from flask import Blueprint, request, session, make_response
 from models import User
 from db import db
-from views.Forms import RegisterForm, LoginForm
+from Forms import RegisterForm, LoginForm
 
 bp = Blueprint('main', __name__, url_prefix='/api/v1/')
 
@@ -18,13 +18,18 @@ def login():
                 return make_response({"errors": "no matching user"}, 401)
             if not user.verify_password(form.password.data):
                 return make_response({"errors" : "password wrong."}, 401)
-
             session['user_id']=user.id
             resp = make_response({"success": user.serializeWithoutPassword}, 200)
             resp.set_cookie('user_id', f'{user.id}')
             return resp
         else:
             return make_response(form.errors, 401)
+
+
+@bp.route('/signup/emailAuth', methods = ["POST"])
+def emailAuth():
+    if request.method == "POST":
+        pass
 
 
 @bp.route('/signup', methods = ["POST"])
@@ -50,6 +55,7 @@ def logOut():
         return make_response({"errors" : "first, login to logout"}, 401)
     session.pop("user_id", None)
     return make_response({"success" : "logged out"}, 200)
+
 
 if __name__ == "__main__":
     bp.run(debug = True)
