@@ -33,18 +33,6 @@ class User(db.Model):
         return len(self.album_user)
 
     @property
-    def serializeWithoutPassword(self):
-        return {
-            'id' : self.id,
-            'username': self.username,
-            'email': self.email,
-            'numberOfPhotos' : self.numberOfPhotos,
-            'numberOfAlbums' : self.numberOfAlbums,
-            'createdAt': str(self.createdAt),
-            'updatedAt': str(self.updatedAt),
-        }
-
-    @property
     def serialize(self):
         return {
             'id' : self.id,
@@ -56,6 +44,12 @@ class User(db.Model):
             'createdAt': self.createdAt,
             'updatedAt': self.updatedAt
         }
+
+    @property
+    def serializeWithoutPassword(self):
+        serialized_user = self.serialize
+        serialized_user.pop('password')
+        return serialized_user
 
 
 class Photo(db.Model):
