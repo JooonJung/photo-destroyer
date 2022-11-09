@@ -5,63 +5,49 @@ from views.Forms import RegisterForm, LoginForm
 
 bp = Blueprint('main', __name__, url_prefix='/api/v1/')
 
-@bp.route('/login', methods=('GET', 'POST'))
-def logIn():
+@bp.route('/login', methods=['POST'])
+def login():
     if request.method == "POST":
+        if 'email' in session:
+            return make_response({"errors" : "session already exists"}, 401)
+
         form = LoginForm(request.form)
-        response = make_response('Response')
-        try:
-            if form.validate():
-                session['email']=form.email.data
-                user = User.query.filter(User.email == form.email.data).first()
-                response.status = 200
-                response = user.serializeWithoutPassword
-                return response
-            else:
-                response.status = 404
-                response = form.errors
-                return response
-        except:
-            response.status = 404
-            response = {"errror" : "wrong password"}
-            return response
-    else:
-        response.status = 404
-        return response
-if __name__ == "__main__":
-    bp.run(debug = True)
+        if form.validate():
+            user = User.query.filter(User.email==form.email.data).first()
+            if not user:
+                return make_response({"errors": "no matching user"}, 401)
+            if not user.verify_password(form.password.data):
+                return make_response({"errors" : "password wrong."}, 401)
+            session['email']=form.email.data
+            return make_response({"success": user.serializeWithoutPassword}, 200)
+        else:
+            return make_response(form.errors, 401)
 
-@bp.route('/signup', methods = ["GET", "POST"])
-def signUp():
+
+@bp.route('/signup', methods = ["POST"])
+def signup():
+    if 'email' in session:
+        return make_response({"errors" : "session already exists"}, 401)
+
     form = RegisterForm(request.form)
-    response = make_response('Response')
-
     if request.method == "POST": 
         if not form.validate():
-            response.status = 404
-            response = {"errors": form.errors}
-            return response
+            return make_response({"errors": form.errors}, 401)
         else:
-            username = form.username.data
-            email = form.email.data
-            password = form.password.data
-            user = User(username, password, email)
-
+            user = User(form.username.data, form.password.data, form.email.data)
             db.session.add(user)
             db.session.commit()
-            response.status = 201
-            return response
-    else:
-        response.status = 404
-        return response
-if __name__ == "__main__":
-    bp.run(debug = True)
+
+            return make_response({"success": "user created"}, 201)
+
 
 @bp.route('/logout', methods=["GET"])
 def logOut():
+    if 'email' not in session:
+        return make_response({"errors" : "first, login to logout"}, 401)
     session.pop("email", None)
-    response = make_response('Response')
-    response.status = 200
-    return response
+    return make_response({"success" : "logged out"}, 200)
+
+
 if __name__ == "__main__":
     bp.run(debug = True)
