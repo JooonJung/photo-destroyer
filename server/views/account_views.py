@@ -9,18 +9,18 @@ bp = Blueprint('account', __name__, url_prefix='/api/v1/account')
 @bp.route('/', methods = ["GET", "PUT", "DELETE"])
 def account():
   if request.method == "GET":
-    if 'email' not in session:
+    if 'user_id' not in session:
       return make_response({"message": "no session"}, 401)
-    user = User.query.filter(User.email==session['email']).first()
+    user = User.query.filter(User.id==session['user_id']).first()
     if not user:
       return make_response({"message": "no user"}, 401)
     return make_response(user.serializeWithoutPassword, 200)
 
 
   elif request.method == "PUT": # require password & user form
-    if 'email' not in session:
+    if 'user_id' not in session:
       return make_response({"message": "no session"}, 401)
-    user = User.query.filter(User.email==session['email']).first()
+    user = User.query.filter(User.id==session['user_id']).first()
     if not user:
       return make_response({"message": "no user"}, 401)
 
@@ -35,7 +35,7 @@ def account():
 
     if request.form.get('username') and user.username != request.form.get('username'):
       user.username = request.form.get('username')
-      message["message"].append({"password": "changed username"})
+      message["message"].append({"username": "changed username"})
       user.updatedAt = datetime.datetime.now()
     
     db.session.commit()
@@ -47,9 +47,9 @@ def account():
 
 
   elif request.method == "DELETE":
-    if 'email' not in session:
+    if 'user_id' not in session:
       return make_response({"message": "no session"}, 401)
-    user = User.query.filter(User.email==session['email']).first()
+    user = User.query.filter(User.id==session['user_id']).first()
     if not user:
       return make_response({"message": "no user"}, 401)
     if not user.verify_password(request.form['password']):
@@ -57,7 +57,7 @@ def account():
     
     db.session.delete(user)
     db.session.commit()
-    session.pop('email', None)
+    session.pop('user_id', None)
 
     return make_response({"message" : "Account Delete Success"}, 200)
 
