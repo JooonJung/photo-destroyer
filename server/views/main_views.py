@@ -8,7 +8,7 @@ bp = Blueprint('main', __name__, url_prefix='/api/v1/')
 @bp.route('/login', methods=['POST'])
 def login():
     if request.method == "POST":
-        if 'email' in session:
+        if 'user_id' in session:
             return make_response({"errors" : "session already exists"}, 401)
 
         form = LoginForm(request.form)
@@ -18,15 +18,18 @@ def login():
                 return make_response({"errors": "no matching user"}, 401)
             if not user.verify_password(form.password.data):
                 return make_response({"errors" : "password wrong."}, 401)
-            session['email']=form.email.data
-            return make_response({"success": user.serializeWithoutPassword}, 200)
+
+            session['user_id']=user.id
+            resp = make_response({"success": user.serializeWithoutPassword}, 200)
+            resp.set_cookie('user_id', f'{user.id}')
+            return resp
         else:
             return make_response(form.errors, 401)
 
 
 @bp.route('/signup', methods = ["POST"])
 def signup():
-    if 'email' in session:
+    if 'user_id' in session:
         return make_response({"errors" : "session already exists"}, 401)
 
     form = RegisterForm(request.form)
@@ -43,11 +46,10 @@ def signup():
 
 @bp.route('/logout', methods=["GET"])
 def logOut():
-    if 'email' not in session:
+    if 'user_id' not in session:
         return make_response({"errors" : "first, login to logout"}, 401)
-    session.pop("email", None)
+    session.pop("user_id", None)
     return make_response({"success" : "logged out"}, 200)
-
 
 if __name__ == "__main__":
     bp.run(debug = True)

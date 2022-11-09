@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash
 
 
 class RegisterForm(Form):
-    def ValidateUsername(self, field):
+    def ValidateEmail(self, field):
         if User.query.filter_by(email=field.data).first():
             raise StopValidation(message='email already in use.')
     
@@ -16,7 +16,7 @@ class RegisterForm(Form):
     email = EmailField('email', validators=[
         DataRequired(message="missing email"), 
         Email(),
-        ValidateUsername,
+        ValidateEmail,
         ])
     password = PasswordField('password', validators=[
         DataRequired("missing password"), 
