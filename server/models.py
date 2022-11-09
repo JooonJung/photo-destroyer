@@ -24,9 +24,11 @@ class User(db.Model):
     def verify_password(self, pwd):
         return check_password_hash(self.password, pwd)
 
+    @property
     def numberOfPhotos(self):
         return len(self.photo_user)
 
+    @property
     def numberOfAlbums(self):
         return len(self.album_user)
 
@@ -36,8 +38,8 @@ class User(db.Model):
             'id' : self.id,
             'username': self.username,
             'email': self.email,
-            'numberOfPhotos' : self.numberOfPhotos(),
-            'numberOfAlbums' : self.numberOfAlbums(),
+            'numberOfPhotos' : self.numberOfPhotos,
+            'numberOfAlbums' : self.numberOfAlbums,
             'createdAt': str(self.createdAt),
             'updatedAt': str(self.updatedAt),
         }
@@ -48,8 +50,8 @@ class User(db.Model):
             'id' : self.id,
             'username': self.username,
             'email': self.email,
-            'numberOfPhotos' : self.numberOfPhotos(),
-            'numberOfAlbums' : self.numberOfAlbums(),
+            'numberOfPhotos' : self.numberOfPhotos,
+            'numberOfAlbums' : self.numberOfAlbums,
             'password': self.password,
             'createdAt': self.createdAt,
             'updatedAt': self.updatedAt
