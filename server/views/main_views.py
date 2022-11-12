@@ -1,7 +1,10 @@
 from flask import Blueprint, request, session, make_response
 from models import User
 from db import db
-from Forms import RegisterForm, LoginForm
+from Forms import RegisterForm, LoginForm, EmailForm
+import string, random
+from werkzeug.security import generate_password_hash
+import datetime
 
 bp = Blueprint('main', __name__, url_prefix='/api/v1/')
 
@@ -55,6 +58,35 @@ def logOut():
         return make_response({"errors" : "first, login to logout"}, 401)
     session.pop("user_id", None)
     return make_response({"success" : "logged out"}, 200)
+
+
+@bp.route('/resetPassword', methods = ["POST"])
+def resetPassword():
+    if request.method == "POST":
+        form = EmailForm(request.form)
+        if not form.validate():
+            return make_response({"errors": form.errors}, 401)
+        user = User.query.filter(User.email==form.email.data).first()
+        if not user:
+            return make_response({"errors": "no matching user"}, 401)
+
+        ## 1. 랜덤 key 발급 후 이메일 전송
+        ### write code here...
+
+        ## 2. 랜덤 key 기반 본인 인증 과정
+        ### write code here...
+
+        ## 3. 본인 인증이 되면 랜덤 password 발급 후 password update
+        randomPassword = "".join([random.choice(string.ascii_letters + string.digits + string.punctuation) for _ in range(10)])
+        print(randomPassword) # 일단 테스트할 때 필요해서 비번 출력, 이메일 구현되면 삭제
+        user.password = generate_password_hash(randomPassword)
+        user.updatedAt = datetime.datetime.now()
+        db.session.commit()
+
+        ## 4. password 이메일로 보내주기
+        ### write code here...
+
+        return make_response({"success" : {"password": ["reset password"]}}, 200)
 
 
 if __name__ == "__main__":
