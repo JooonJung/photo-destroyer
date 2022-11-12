@@ -74,3 +74,7 @@ def changePassword():
     user.updatedAt = datetime.datetime.now()
     db.session.commit()
     return make_response({"success" : {"password": ["changed password"]}}, 200)
+
+
+if __name__ == "__main__":
+    bp.run(debug = True)
