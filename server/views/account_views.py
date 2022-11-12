@@ -3,6 +3,7 @@ from models import User
 from flask import Blueprint, make_response, request, session
 from werkzeug.security import generate_password_hash
 import datetime
+from Forms import AccountForm, PasswordChangeForm
 
 bp = Blueprint('account', __name__, url_prefix='/api/v1/account')
 
@@ -10,40 +11,30 @@ bp = Blueprint('account', __name__, url_prefix='/api/v1/account')
 def account():
   if request.method == "GET":
     if 'user_id' not in session:
-      return make_response({"message": "no session"}, 401)
+      return make_response({"error": "no session"}, 401)
     user = User.query.filter(User.id==session['user_id']).first()
     if not user:
-      return make_response({"message": "no user"}, 401)
-    return make_response(user.serializeWithoutPassword, 200)
+      return make_response({"error": "no user"}, 401)
+    return make_response({"success": user.serializeWithoutPassword}, 200)
 
 
-  elif request.method == "PUT": # require password & user form
+  elif request.method == "PUT":
     if 'user_id' not in session:
-      return make_response({"message": "no session"}, 401)
+      return make_response({"error": "no session"}, 401)
     user = User.query.filter(User.id==session['user_id']).first()
     if not user:
-      return make_response({"message": "no user"}, 401)
+      return make_response({"error": "no user"}, 401)
 
-    message = {"message" : []}
+    form = AccountForm(request.form)
 
-    if request.form.get('new_password'):
-      if not user.verify_password(request.form.get('old_password')):
-        return make_response({"message" : "password do not match."}, 401)
-      user.password = generate_password_hash(request.form["new_password"])
-      message["message"].append({"password": "changed password"})
-      user.updatedAt = datetime.datetime.now()
-
-    if request.form.get('username') and user.username != request.form.get('username'):
-      user.username = request.form.get('username')
-      message["message"].append({"username": "changed username"})
-      user.updatedAt = datetime.datetime.now()
-    
+    if not form.validate():
+      return make_response({"errors": form.errors}, 401)
+      
+    user.username = request.form.get('username')
+    user.updatedAt = datetime.datetime.now()
     db.session.commit()
 
-    if not message["message"]:
-      message["message"] = "nothing to change"
-
-    return make_response(message, 200)
+    return make_response({"success" : user.serializeWithoutPassword }, 200)
 
 
   elif request.method == "DELETE":
@@ -62,5 +53,28 @@ def account():
     return make_response({"message" : "Account Delete Success"}, 200)
 
 
-  else:
-    return make_response({"message": "Page Not Found"}, 404)
+@bp.route('/changePassword', methods = ["POST"])
+def changePassword():
+  if request.method == "POST": # require newPassword, oldPassword
+    if 'user_id' not in session:
+      return make_response({"error": "no session"}, 401)
+    user = User.query.filter(User.id==session['user_id']).first()
+    if not user:
+      return make_response({"error": "no user"}, 401)
+
+    if not user.verify_password(request.form.get('oldPassword')):
+      return make_response({"error" : "password do not match."}, 401)
+
+    form = PasswordChangeForm(request.form)
+
+    if not form.validate():
+      return make_response({"errors": form.errors}, 401)
+
+    user.password = generate_password_hash(request.form["newPassword"])
+    user.updatedAt = datetime.datetime.now()
+    db.session.commit()
+    return make_response({"success" : {"password": ["changed password"]}}, 200)
+
+
+if __name__ == "__main__":
+    bp.run(debug = True)
