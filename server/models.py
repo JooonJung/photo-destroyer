@@ -62,7 +62,7 @@ class User(db.Model):
 
 class Photo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    img = db.Column(db.Text, unique=True, nullable=False)
+    imgUrl = db.Column(db.Text, nullable=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     owner = db.relationship('User', backref=db.backref('possessingPhotos', cascade='all, delete-orphan'))
     mimetype = db.Column(db.Text, nullable=False)
@@ -70,8 +70,8 @@ class Photo(db.Model):
     createdAt = db.Column(db.DateTime(), nullable=True)
     updatedAt = db.Column(db.DateTime(), nullable=True)
 
-    def __init__(self, img, owner_id, mimetype, tags):
-        self.img = img
+    def __init__(self, imgUrl, owner_id, mimetype, tags):
+        self.imgUrl = imgUrl
         self.owner_id = owner_id
         self.owner = User.query.filter(User.id == owner_id).first()
         self.mimetype = mimetype
@@ -84,7 +84,7 @@ class Photo(db.Model):
     def serialize(self):
         return {
             'id' : self.id,
-            'img': self.img,
+            'imgUrl': self.imgUrl,
             'mimetype': self.mimetype,
             'owner_id' : self.owner_id,
             'tags' : strTagToTagsList(self.tags),
@@ -94,7 +94,7 @@ class Photo(db.Model):
 
 class Album(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    img = db.Column(db.Text, unique=True, nullable=False)
+    imgUrl = db.Column(db.Text, nullable=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     owner = db.relationship('User', backref=db.backref('possessingAlbums', cascade='all, delete-orphan'))
     mimetype = db.Column(db.Text, nullable=False)
@@ -102,8 +102,8 @@ class Album(db.Model):
     createdAt = db.Column(db.DateTime(), nullable=True)
     updatedAt = db.Column(db.DateTime(), nullable=True)
 
-    def __init__(self, img, owner_id, mimetype, tags):
-        self.img = img
+    def __init__(self, imgUrl, owner_id, mimetype, tags):
+        self.imgUrl = imgUrl
         self.owner_id = owner_id
         self.owner = User.query.filter(User.id == owner_id).first()
         self.mimetype = mimetype
@@ -116,7 +116,7 @@ class Album(db.Model):
     def serialize(self):
         return {
             'id' : self.id,
-            'img': self.img,
+            'imgUrl': self.imgUrl,
             'mimetype': self.mimetype,
             'owner_id' : self.user_id,
             'tags' : strTagToTagsList(self.tags),
