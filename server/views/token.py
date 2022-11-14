@@ -1,18 +1,17 @@
 from itsdangerous import URLSafeTimedSerializer
 import config
-from flask import Flask, current_app
+from flask import current_app
 from flask_mail import Message, Mail
 
 def generate_confirmation_token(email):
-    app = Flask(__name__)
-    app.secret_key = "12345678910"
+    app = current_app
     app.config.from_object(config)
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
 
 
 def confirm_token(token, expiration=3600):
-    app = Flask(__name__)
+    app = current_app
     app.config.from_object(config)
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
@@ -37,5 +36,3 @@ def send_email(to, subject, template):
         sender=app.config['MAIL_USERNAME']
     )
     mail.send(msg)
-
-
