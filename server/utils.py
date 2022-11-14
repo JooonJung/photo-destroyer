@@ -10,4 +10,4 @@ def strTagToTagsList(tags):
   return ast.literal_eval(tags)
 
 def tagsListToStrTag(tagsList):
-  return f'{formatTagsList(tagsList)}'
+  return f'{list(set(formatTagsList(tagsList)))}'
