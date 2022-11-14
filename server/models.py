@@ -1,7 +1,7 @@
 from db import db
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
-from utils import strTagToTagsList
+from utils import strTagToTagsList, tagsListToStrTag
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -21,6 +21,7 @@ class User(db.Model):
         self.confirmed = confirmed
         self.createdAt = datetime.datetime.now()
         self.updatedAt = datetime.datetime.now()
+        self.tags = '[]'
         self.confirmedAt = confirmedAt
 
     def __repr__(self):
@@ -31,11 +32,11 @@ class User(db.Model):
 
     @property
     def numberOfPhotos(self):
-        return len(self.photo_user)
+        return len(self.possessingPhotos)
 
     @property
     def numberOfAlbums(self):
-        return len(self.album_user)
+        return len(self.possessingAlbums)
 
     @property
     def serialize(self):
@@ -62,16 +63,22 @@ class User(db.Model):
 class Photo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     img = db.Column(db.Text, unique=True, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
-    user = db.relationship('User', backref=db.backref('photo_user', cascade='all, delete-orphan'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    owner = db.relationship('User', backref=db.backref('possessingPhotos', cascade='all, delete-orphan'))
     mimetype = db.Column(db.Text, nullable=False)
     tags = db.Column(db.Text)
     createdAt = db.Column(db.DateTime(), nullable=True)
     updatedAt = db.Column(db.DateTime(), nullable=True)
 
-    def __init__(self):
+    def __init__(self, img, owner_id, mimetype, tags):
+        self.img = img
+        self.owner_id = owner_id
+        self.owner = User.query.filter(User.id == owner_id).first()
+        self.mimetype = mimetype
+        self.tags = tagsListToStrTag(tags)
         self.createdAt = datetime.datetime.now()
         self.updatedAt = datetime.datetime.now()
+        self.owner.tags = tagsListToStrTag(strTagToTagsList(self.tags) + strTagToTagsList(self.owner.tags))
 
     @property
     def serialize(self):
@@ -79,7 +86,7 @@ class Photo(db.Model):
             'id' : self.id,
             'img': self.img,
             'mimetype': self.mimetype,
-            'user_id' : self.user_id,
+            'owner_id' : self.owner_id,
             'tags' : strTagToTagsList(self.tags),
             'createdAt': self.createdAt,
             'updatedAt': self.updatedAt
@@ -88,16 +95,22 @@ class Photo(db.Model):
 class Album(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     img = db.Column(db.Text, unique=True, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
-    user = db.relationship('User', backref=db.backref('album_user', cascade='all, delete-orphan'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    owner = db.relationship('User', backref=db.backref('possessingAlbums', cascade='all, delete-orphan'))
     mimetype = db.Column(db.Text, nullable=False)
     tags = db.Column(db.Text)
     createdAt = db.Column(db.DateTime(), nullable=True)
     updatedAt = db.Column(db.DateTime(), nullable=True)
 
-    def __init__(self):
+    def __init__(self, img, owner_id, mimetype, tags):
+        self.img = img
+        self.owner_id = owner_id
+        self.owner = User.query.filter(User.id == owner_id).first()
+        self.mimetype = mimetype
+        self.tags = tagsListToStrTag(tags)
         self.createdAt = datetime.datetime.now()
         self.updatedAt = datetime.datetime.now()
+        self.owner.tags = tagsListToStrTag(strTagToTagsList(self.tags) + strTagToTagsList(self.owner.tags))
 
     @property
     def serialize(self):
@@ -105,7 +118,7 @@ class Album(db.Model):
             'id' : self.id,
             'img': self.img,
             'mimetype': self.mimetype,
-            'user_id' : self.user_id,
+            'owner_id' : self.user_id,
             'tags' : strTagToTagsList(self.tags),
             'createdAt': self.createdAt,
             'updatedAt': self.updatedAt
