@@ -13,7 +13,7 @@ def photos():
     user = User.query.filter(User.id==session['user_id']).first()
     if not user:
       return make_response({"error": "no user"}, 401)
-    return make_response({"photos": [photo.serialize for photo in user.photo_user]}, 200)
+    return make_response({"photos": [photo.serialize for photo in user.possessingPhotos]}, 200)
 
 
 @bp.route('/<photo_id>', methods = ["GET", "DELETE"])

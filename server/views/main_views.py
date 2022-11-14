@@ -40,16 +40,15 @@ def signup():
             return make_response({"errors": form.errors}, 401)
         else:
             user = User(form.username.data, form.password.data, form.email.data, confirmed=False)
-            db.session.add(user)
-            db.session.commit()
 
             token = generate_confirmation_token(user.email)
             confirm_url = url_for('main.confirm_email', token=token, _external=True)
             html = render_template('activate.html', confirm_url=confirm_url)
-            subject = "Please confirm your email"
-            print("before")
+            subject = "[Photo Destroyer] 이메일 인증하기"
             send_email(user.email, subject, html)
-            print("after")
+
+            db.session.add(user)
+            db.session.commit()
 
             return make_response({"success": "user created"}, 201)
 
@@ -80,7 +79,7 @@ def logOut():
 
 @bp.route('/resetPassword', methods = ["POST"])
 def resetPassword():
-    if request.method == "POST":
+    if request.method == "POST":          
         form = EmailForm(request.form)
         if not form.validate():
             return make_response({"errors": form.errors}, 401)
@@ -88,13 +87,15 @@ def resetPassword():
         if not user:
             return make_response({"errors": "no matching user"}, 401)
 
-        ## 1. 랜덤 key 발급 후 이메일 전송, 본인인증
         user.confirmed = False
         token = generate_confirmation_token(user.email)
         confirm_url = url_for('main.reset_with_token', token=token, _external=True)
         html = render_template('activate.html', confirm_url=confirm_url)
-        subject = "Please confirm your email"
+        subject = "[Photo Destroyer] 비밀번호 변경 이메일"
         send_email(user.email, subject, html)
+
+        if 'user_id' in session:
+            session.pop("user_id", None)
 
         return make_response({"success" : "email is sent"}, 200)
 
