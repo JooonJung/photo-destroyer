@@ -43,11 +43,13 @@ class User(db.Model):
             'id' : self.id,
             'username': self.username,
             'email': self.email,
+            'confirmed' : self.confirmed,
             'numberOfPhotos' : self.numberOfPhotos,
             'numberOfAlbums' : self.numberOfAlbums,
             'password': self.password,
             'createdAt': self.createdAt,
-            'updatedAt': self.updatedAt
+            'updatedAt': self.updatedAt,
+            'confirmAt': self.confirmAt
         }
 
     @property
