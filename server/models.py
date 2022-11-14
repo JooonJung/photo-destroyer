@@ -1,6 +1,7 @@
 from db import db
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
+from utils import strTagToTagsList
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -73,7 +74,7 @@ class Photo(db.Model):
             'img': self.img,
             'mimetype': self.mimetype,
             'user_id' : self.user_id,
-            'tags' : self.tags,
+            'tags' : strTagToTagsList(self.tags),
             'createdAt': self.createdAt,
             'updatedAt': self.updatedAt
         }
@@ -99,7 +100,7 @@ class Album(db.Model):
             'img': self.img,
             'mimetype': self.mimetype,
             'user_id' : self.user_id,
-            'tags' : self.tags,
+            'tags' : strTagToTagsList(self.tags),
             'createdAt': self.createdAt,
             'updatedAt': self.updatedAt
         }
