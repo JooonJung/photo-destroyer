@@ -8,16 +8,20 @@ class User(db.Model):
     username = db.Column(db.String(20), nullable=True)
     email = db.Column(db.String(50), unique=True, nullable=True)
     password = db.Column(db.String(50), nullable=True)
+    confirmed = db.Column(db.Boolean, nullable=True, default = False)
     createdAt = db.Column(db.DateTime(), nullable=True)
     updatedAt = db.Column(db.DateTime(), nullable=True)
+    confirmAt = db.Column(db.DateTime(), nullable=True)
     tags = db.Column(db.Text)
 
-    def __init__(self, username, password, email):
+    def __init__(self, username, password, email, confirmed, confirmAt = None):
         self.username = username
         self.email = email
         self.password = generate_password_hash(password)
+        self.confirmed = confirmed
         self.createdAt = datetime.datetime.now()
         self.updatedAt = datetime.datetime.now()
+        self.confirmAt = confirmAt
 
     def __repr__(self):
         return f'<User {self.username}>'
