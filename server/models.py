@@ -11,17 +11,17 @@ class User(db.Model):
     confirmed = db.Column(db.Boolean, nullable=True, default = False)
     createdAt = db.Column(db.DateTime(), nullable=True)
     updatedAt = db.Column(db.DateTime(), nullable=True)
-    confirmAt = db.Column(db.DateTime(), nullable=True)
+    confirmedAt = db.Column(db.DateTime(), nullable=True)
     tags = db.Column(db.Text)
 
-    def __init__(self, username, password, email, confirmed, confirmAt = None):
+    def __init__(self, username, password, email, confirmed, confirmedAt = None):
         self.username = username
         self.email = email
         self.password = generate_password_hash(password)
         self.confirmed = confirmed
         self.createdAt = datetime.datetime.now()
         self.updatedAt = datetime.datetime.now()
-        self.confirmAt = confirmAt
+        self.confirmedAt = confirmedAt
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -43,11 +43,13 @@ class User(db.Model):
             'id' : self.id,
             'username': self.username,
             'email': self.email,
+            'confirmed' : self.confirmed,
             'numberOfPhotos' : self.numberOfPhotos,
             'numberOfAlbums' : self.numberOfAlbums,
             'password': self.password,
             'createdAt': self.createdAt,
-            'updatedAt': self.updatedAt
+            'updatedAt': self.updatedAt,
+            'confirmedAt': self.confirmedAt
         }
 
     @property
