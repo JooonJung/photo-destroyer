@@ -46,7 +46,7 @@ def signup():
             token = generate_confirmation_token(user.email)
             confirm_url = url_for('main.confirm_email', token=token, _external=True)
             html = render_template('activate.html', confirm_url=confirm_url)
-            subject = "Please confirm your email"
+            subject = "[Photo Destroyer] 이메일 인증하기"
             print("before")
             send_email(user.email, subject, html)
             print("after")
@@ -92,7 +92,7 @@ def resetPassword():
         token = generate_confirmation_token(user.email)
         confirm_url = url_for('main.reset_with_token', token=token, _external=True)
         html = render_template('activate.html', confirm_url=confirm_url)
-        subject = "Please confirm your email"
+        subject = "[Photo Destroyer] 비밀번호 변경 이메일"
         send_email(user.email, subject, html)
 
         if 'user_id' in session:
