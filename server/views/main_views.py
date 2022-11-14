@@ -40,16 +40,15 @@ def signup():
             return make_response({"errors": form.errors}, 401)
         else:
             user = User(form.username.data, form.password.data, form.email.data, confirmed=False)
-            db.session.add(user)
-            db.session.commit()
 
             token = generate_confirmation_token(user.email)
             confirm_url = url_for('main.confirm_email', token=token, _external=True)
             html = render_template('activate.html', confirm_url=confirm_url)
             subject = "[Photo Destroyer] 이메일 인증하기"
-            print("before")
             send_email(user.email, subject, html)
-            print("after")
+
+            db.session.add(user)
+            db.session.commit()
 
             return make_response({"success": "user created"}, 201)
 
