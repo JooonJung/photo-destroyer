@@ -64,7 +64,7 @@ def confirm_email(token):
         return make_response({"success": 'Account already confirmed. Please login.'}, 200)
     else:
         user.confirmed = True
-        user.confirmAt = datetime.datetime.now()
+        user.confirmedAt = datetime.datetime.now()
         db.session.add(user)
         db.session.commit()
         return make_response({"success" : "email confirmed"} , 200)
@@ -111,7 +111,7 @@ def reset_with_token(token):
     user.password = generate_password_hash(randomPassword)
     user.updatedAt = datetime.datetime.now()
     user.confirmed = True
-    user.confirmAt = datetime.datetime.now()
+    user.confirmedAt = datetime.datetime.now()
     db.session.add(user)
     db.session.commit()
 
