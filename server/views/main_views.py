@@ -29,22 +29,6 @@ def login():
         else:
             return make_response(form.errors, 401)
 
-@bp.route('/confirm/<token>')
-def confirm_email(token):
-    try:
-        email = confirm_token(token)
-    except:
-        return make_response({"error": 'The confirmation link is invalid or has expired.'}, 401)
-    user = User.query.filter_by(email=email).first_or_404()
-    if user.confirmed:
-        return make_response({"success": 'Account already confirmed. Please login.'}, 200)
-    else:
-        user.confirmed = True
-        user.confirmAt = datetime.datetime.now()
-        db.session.add(user)
-        db.session.commit()
-        return make_response({"success" : "email confirmed"} , 200)
-
 @bp.route('/signup', methods = ["POST"])
 def signup():
     if 'user_id' in session:
@@ -69,6 +53,22 @@ def signup():
 
             return make_response({"success": "user created"}, 201)
 
+@bp.route('/confirm/<token>')
+def confirm_email(token):
+    try:
+        email = confirm_token(token)
+    except:
+        return make_response({"error": 'The confirmation link is invalid or has expired.'}, 401)
+    user = User.query.filter_by(email=email).first_or_404()
+    if user.confirmed:
+        return make_response({"success": 'Account already confirmed. Please login.'}, 200)
+    else:
+        user.confirmed = True
+        user.confirmAt = datetime.datetime.now()
+        db.session.add(user)
+        db.session.commit()
+        return make_response({"success" : "email confirmed"} , 200)
+
 
 @bp.route('/logout', methods=["GET"])
 def logOut():
@@ -88,23 +88,36 @@ def resetPassword():
         if not user:
             return make_response({"errors": "no matching user"}, 401)
 
-        ## 1. 랜덤 key 발급 후 이메일 전송
-        ### write code here...
+        ## 1. 랜덤 key 발급 후 이메일 전송, 본인인증
+        user.confirmed = False
+        token = generate_confirmation_token(user.email)
+        confirm_url = url_for('main.reset_with_token', token=token, _external=True)
+        html = render_template('activate.html', confirm_url=confirm_url)
+        subject = "Please confirm your email"
+        send_email(user.email, subject, html)
 
-        ## 2. 랜덤 key 기반 본인 인증 과정
-        ### write code here...
+        return make_response({"success" : "email is sent"}, 200)
 
-        ## 3. 본인 인증이 되면 랜덤 password 발급 후 password update
-        randomPassword = "".join([random.choice(string.ascii_letters + string.digits + string.punctuation) for _ in range(10)])
-        print(randomPassword) # 일단 테스트할 때 필요해서 비번 출력, 이메일 구현되면 삭제
-        user.password = generate_password_hash(randomPassword)
-        user.updatedAt = datetime.datetime.now()
-        db.session.commit()
+@bp.route('/reset/<token>', methods=["GET", "POST"])
+def reset_with_token(token):
+    try:
+        email = confirm_token(token)
+    except:
+        return make_response({"error": 'The confirmation link is invalid or has expired.'}, 401)
+    
+    user = User.query.filter(User.email == email).first_or_404()
+    randomPassword = "".join([random.choice(string.ascii_letters + string.digits + string.punctuation) for _ in range(10)])
+    print(randomPassword)
+    user.password = generate_password_hash(randomPassword)
+    user.updatedAt = datetime.datetime.now()
+    user.confirmed = True
+    user.confirmAt = datetime.datetime.now()
+    db.session.add(user)
+    db.session.commit()
 
-        ## 4. password 이메일로 보내주기
-        ### write code here...
+    send_email(user.email, subject = randomPassword, template=False)
 
-        return make_response({"success" : {"password": ["reset password"]}}, 200)
+    return make_response({"success" : {"password": randomPassword}}, 200)
 
 
 if __name__ == "__main__":
