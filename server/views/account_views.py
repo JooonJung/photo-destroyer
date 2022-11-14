@@ -73,6 +73,9 @@ def changePassword():
     user.password = generate_password_hash(request.form["newPassword"])
     user.updatedAt = datetime.datetime.now()
     db.session.commit()
+
+    session.pop("user_id", None)
+    
     return make_response({"success" : {"password": ["changed password"]}}, 200)
 
 
