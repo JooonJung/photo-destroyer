@@ -1,6 +1,7 @@
 from db import db
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
+from utils import strTagToTagsList
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -66,6 +67,18 @@ class Photo(db.Model):
         self.createdAt = datetime.datetime.now()
         self.updatedAt = datetime.datetime.now()
 
+    @property
+    def serialize(self):
+        return {
+            'id' : self.id,
+            'img': self.img,
+            'mimetype': self.mimetype,
+            'user_id' : self.user_id,
+            'tags' : strTagToTagsList(self.tags),
+            'createdAt': self.createdAt,
+            'updatedAt': self.updatedAt
+        }
+
 class Album(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     img = db.Column(db.Text, unique=True, nullable=False)
@@ -79,3 +92,15 @@ class Album(db.Model):
     def __init__(self):
         self.createdAt = datetime.datetime.now()
         self.updatedAt = datetime.datetime.now()
+
+    @property
+    def serialize(self):
+        return {
+            'id' : self.id,
+            'img': self.img,
+            'mimetype': self.mimetype,
+            'user_id' : self.user_id,
+            'tags' : strTagToTagsList(self.tags),
+            'createdAt': self.createdAt,
+            'updatedAt': self.updatedAt
+        }
