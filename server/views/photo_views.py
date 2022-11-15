@@ -1,6 +1,8 @@
 from db import db 
 from models import User, Photo
-from flask import Blueprint, make_response, request, session
+from flask import Blueprint, make_response, request, session, url_for
+from werkzeug.utils import secure_filename
+from utils import tagsListToStrTag
 
 bp = Blueprint('photos', __name__, url_prefix='/api/v1/photos')
 
@@ -26,7 +28,7 @@ def photosDetail(photo_id):
     if not photo:
       return make_response({"error": "no matching photo"}, 401)
 
-    if photo.user_id != session['user_id']:
+    if photo.owner_id != session['user_id']:
       return make_response({"error": "not owner of photo"}, 401)
 
     return make_response({"photo": photo.serialize}, 200)
@@ -48,6 +50,23 @@ def photosDetail(photo_id):
 
     return make_response({"success": "photo delete success"}, 200)
 
+@bp.route('/upload', methods = ['POST'])
+def photoUpload():
+  if 'user_id' not in session:
+    return make_response({"error" : "no session"}, 401)
+  
+  file = request.files['file']
+  mimetype = file.mimetype
+  imgUrl = './static/upload/' + secure_filename(file.filename)
+  tags = list(request.form['tags'])
+  file.save(imgUrl)
+  owner_id = session['user_id']
+
+  photo = Photo(imgUrl=imgUrl, owner_id=owner_id, mimetype=mimetype, tags=tags)
+  db.session.add(photo)
+  db.session.commit()
+
+  return make_response({"success":"photo uploaded"}, 200)
 
 if __name__ == "__main__":
     bp.run(debug = True)

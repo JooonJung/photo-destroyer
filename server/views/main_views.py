@@ -90,7 +90,7 @@ def resetPassword():
         user.confirmed = False
         token = generate_confirmation_token(user.email)
         confirm_url = url_for('main.reset_with_token', token=token, _external=True)
-        html = render_template('activate.html', confirm_url=confirm_url)
+        html = render_template('reset_password.html', confirm_url=confirm_url)
         subject = "[Photo Destroyer] 비밀번호 변경 이메일"
         send_email(user.email, subject, html)
 
@@ -115,8 +115,6 @@ def reset_with_token(token):
     user.confirmedAt = datetime.datetime.now()
     db.session.add(user)
     db.session.commit()
-
-    send_email(user.email, subject = randomPassword, template=False)
 
     return make_response({"success" : {"password": randomPassword}}, 200)
 
