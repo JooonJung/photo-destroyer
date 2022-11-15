@@ -78,7 +78,7 @@ class Photo(db.Model):
         self.tags = tagsListToStrTag(tags)
         self.createdAt = datetime.datetime.now()
         self.updatedAt = datetime.datetime.now()
-        self.owner.tags = tagsListToStrTag(strTagToTagsList(self.tags) + strTagToTagsList(self.owner.tags))
+        # self.owner.tags = tagsListToStrTag(strTagToTagsList(self.tags) + strTagToTagsList(self.owner.tags))
 
     @property
     def serialize(self):
