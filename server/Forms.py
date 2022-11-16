@@ -79,6 +79,11 @@ class PasswordChangeForm(Form):
     newPassword = PasswordField('newPassword', validators=[
             DataRequired("missing new password"),
             NotEqualTo('oldPassword', 'password has not changed'),
+            EqualTo('newPasswordConfirm', 'wrong password confirmation'),
+        ]
+    )
+    newPasswordConfirm = PasswordField('newPasswordConfirm', validators=[
+            DataRequired("missing new password confirmation"),
         ]
     )
 

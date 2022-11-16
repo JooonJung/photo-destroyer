@@ -50,6 +50,7 @@ class User(db.Model):
             'password': self.password,
             'createdAt': self.createdAt,
             'updatedAt': self.updatedAt,
+            'tags': strTagToTagsList(self.tags), 
             'confirmedAt': self.confirmedAt
         }
 
@@ -58,6 +59,14 @@ class User(db.Model):
         serialized_user = self.serialize
         serialized_user.pop('password')
         return serialized_user
+
+    def updateUserTags(self):
+        tags = []
+        for photo in self.possessingPhotos:
+            tags += strTagToTagsList(photo.tags)
+        for album in self.possessingAlbums:
+            tags += strTagToTagsList(album.tags)
+        self.tags = tagsListToStrTag(tags)
 
 
 class Photo(db.Model):
@@ -78,7 +87,6 @@ class Photo(db.Model):
         self.tags = tagsListToStrTag(tags)
         self.createdAt = datetime.datetime.now()
         self.updatedAt = datetime.datetime.now()
-        # self.owner.tags = tagsListToStrTag(strTagToTagsList(self.tags) + strTagToTagsList(self.owner.tags))
 
     @property
     def serialize(self):
@@ -110,7 +118,6 @@ class Album(db.Model):
         self.tags = tagsListToStrTag(tags)
         self.createdAt = datetime.datetime.now()
         self.updatedAt = datetime.datetime.now()
-        self.owner.tags = tagsListToStrTag(strTagToTagsList(self.tags) + strTagToTagsList(self.owner.tags))
 
     @property
     def serialize(self):
