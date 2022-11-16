@@ -19,4 +19,10 @@ def saveImageFromLifeFourCuts(url, filename):
   splitUrl = url.split("/")
   splitUrl[-1] = "image.jpg"
   formattedUrl = "/".join(splitUrl)
-  req.urlretrieve(formattedUrl, BASE_DIR + f"static/upload/{filename}")
+  req.urlretrieve(formattedUrl, BASE_DIR + f"/static/upload/{filename}.jpg")
+
+
+def saveImageAndReturnUrl(brand, QRcodeUrl, filename):
+  if brand == "lifeFourCuts":
+      saveImageFromLifeFourCuts(QRcodeUrl, filename)
+      return f"./static/upload/{filename}.jpg"
