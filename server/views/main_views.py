@@ -12,6 +12,7 @@ bp = Blueprint('main', __name__, url_prefix='/api/v1/')
 @bp.route('/login', methods=['POST'])
 def login():
     if request.method == "POST":
+        ''' Receive email, password ''' 
         if 'user_id' in session:
             return make_response({"errors" : "session already exists"}, 401)
 
@@ -31,6 +32,7 @@ def login():
 
 @bp.route('/signup', methods = ["POST"])
 def signup():
+    ''' Receive username, email, password, passwordConfirm '''
     if 'user_id' in session:
         return make_response({"errors" : "session already exists"}, 401)
 
@@ -80,6 +82,7 @@ def logOut():
 @bp.route('/resetPassword', methods = ["POST"])
 def resetPassword():
     if request.method == "POST":          
+        ''' Receive email '''
         form = EmailForm(request.form)
         if not form.validate():
             return make_response({"errors": form.errors}, 401)
@@ -99,7 +102,7 @@ def resetPassword():
 
         return make_response({"success" : "email is sent"}, 200)
 
-@bp.route('/reset/<token>', methods=["GET", "POST"])
+@bp.route('/reset/<token>', methods=["GET"])
 def reset_with_token(token):
     try:
         email = confirm_token(token)

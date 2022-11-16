@@ -19,6 +19,7 @@ def account():
 
 
   elif request.method == "PUT":
+    ''' Receive username '''
     if 'user_id' not in session:
       return make_response({"error": "no session"}, 401)
     user = User.query.filter(User.id==session['user_id']).first()
@@ -55,7 +56,8 @@ def account():
 
 @bp.route('/changePassword', methods = ["POST"])
 def changePassword():
-  if request.method == "POST": # require newPassword, oldPassword
+  ''' Receive oldPassword, newPassword, newPasswordConfirm '''
+  if request.method == "POST":
     if 'user_id' not in session:
       return make_response({"error": "no session"}, 401)
     user = User.query.filter(User.id==session['user_id']).first()
@@ -75,7 +77,7 @@ def changePassword():
     db.session.commit()
 
     session.pop("user_id", None)
-    
+
     return make_response({"success" : {"password": ["changed password"]}}, 200)
 
 
