@@ -20,11 +20,14 @@ def photos():
       return make_response({"error": "no user"}, 401)
     return make_response({"photos": [photo.serialize for photo in user.possessingPhotos]}, 200)
 
+
   if request.method == "POST":
     ''' Receive photo QRcodeUrl, brand, tags '''
-
     if 'user_id' not in session:
       return make_response({"error" : "no session"}, 401)
+    user = User.query.filter(User.id==session['user_id']).first()
+    if not user:
+      return make_response({"error": "no user"}, 401)
 
     ## TODO : form validation
     QRcodeUrl = request.form["QRcodeUrl"]
@@ -48,6 +51,9 @@ def photosDetail(photo_id):
   if request.method == "GET":
     if 'user_id' not in session:
       return make_response({"error": "no session"}, 401)
+    user = User.query.filter(User.id==session['user_id']).first()
+    if not user:
+      return make_response({"error": "no user"}, 401)
     
     photo = Photo.query.filter(Photo.id==photo_id).first()
     if not photo:
@@ -64,6 +70,9 @@ def photosDetail(photo_id):
     ## TODO : form validation
     if 'user_id' not in session:
       return make_response({"error": "no session"}, 401)
+    user = User.query.filter(User.id==session['user_id']).first()
+    if not user:
+      return make_response({"error": "no user"}, 401)
 
     photo = Photo.query.filter(Photo.id==photo_id).first()
     if not photo:
