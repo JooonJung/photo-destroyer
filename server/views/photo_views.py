@@ -41,6 +41,7 @@ def photos():
 
     photo = Photo(imgUrl=imgUrl, owner_id=owner_id, mimetype=mimetype, tags=tags)
     db.session.add(photo)
+    user.updateUserTags()
     db.session.commit()
 
     return make_response({"success": {"photo" : photo.serialize }}, 200)
@@ -83,6 +84,7 @@ def photosDetail(photo_id):
 
     tags = strTagToTagsList(request.form['tags'])
     photo.tags = tagsListToStrTag(tags)
+    user.updateUserTags()
     db.session.commit()
     return make_response({"photo": photo.serialize}, 200)
 
@@ -90,6 +92,9 @@ def photosDetail(photo_id):
   if request.method == "DELETE":
     if 'user_id' not in session:
       return make_response({"error": "no session"}, 401)
+    user = User.query.filter(User.id==session['user_id']).first()
+    if not user:
+      return make_response({"error": "no user"}, 401)
     
     photo = Photo.query.filter(Photo.id==photo_id).first()
     if not photo:
@@ -99,6 +104,7 @@ def photosDetail(photo_id):
       return make_response({"error": "not owner of photo"}, 401)
 
     db.session.delete(photo)
+    user.updateUserTags()
     db.session.commit()
 
     return make_response({"success": "photo delete success"}, 200)
