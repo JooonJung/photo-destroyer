@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from utils import strTagToTagsList, saveImageAndReturnUrl, tagsListToStrTag
 import time
 import mimetypes
+from Forms import PhotoCreateForm
 
 bp = Blueprint('photos', __name__, url_prefix='/api/v1/photos')
 
@@ -29,7 +30,16 @@ def photos():
     if not user:
       return make_response({"error": "no user"}, 401)
 
-    ## TODO : form validation
+    form = PhotoCreateForm(request.form)
+    # tags validate
+    try:
+      strTagToTagsList(request.form["tags"])
+    except:
+      return make_response({"errors": {"tags" : "invalid tags"}}, 401)
+
+    if not form.validate():
+      return make_response({"errors": form.errors}, 401)
+    
     QRcodeUrl = request.form["QRcodeUrl"]
     brand = request.form["brand"]
     filename = f'{session["user_id"]}_{brand}_{"_".join(str(time.time()).split("."))}'
@@ -68,7 +78,7 @@ def photosDetail(photo_id):
 
   if request.method == "POST":
     ''' Receive tags '''
-    ## TODO : form validation
+    
     if 'user_id' not in session:
       return make_response({"error": "no session"}, 401)
     user = User.query.filter(User.id==session['user_id']).first()
@@ -81,8 +91,13 @@ def photosDetail(photo_id):
 
     if photo.owner_id != session['user_id']:
       return make_response({"error": "not owner of photo"}, 401)
-
-    tags = strTagToTagsList(request.form['tags'])
+    
+    # tags validate
+    try:
+      tags = strTagToTagsList(request.form['tags'])
+    except:
+      return make_response({"errors": {"tags" : "invalid tags"}}, 401)
+    
     photo.tags = tagsListToStrTag(tags)
     user.updateUserTags()
     db.session.commit()
