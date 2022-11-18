@@ -100,6 +100,7 @@ def photosDetail(photo_id):
     
     photo.tags = tagsListToStrTag(tags)
     user.updateUserTags()
+    photo.updatedAt = datetime.now()
     db.session.commit()
     return make_response({"photo": photo.serialize}, 200)
 
