@@ -3,10 +3,16 @@ import urllib.request as req
 from config import BASE_DIR
 
 def formatTagsList(tagsList):
-  for i, tag in enumerate(tagsList):
+  tags = []
+  for tag in tagsList:
+    if tag == "":
+      continue
     if not tag.startswith("#"):
-      tagsList[i] = "#" + tag
-  return tagsList
+      tags.append("#" + tag)
+    else:
+      tags.append(tag)
+
+  return tags
 
 
 def strTagToTagsList(tags):
