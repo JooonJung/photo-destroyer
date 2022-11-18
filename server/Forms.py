@@ -1,5 +1,5 @@
-from wtforms import StringField, PasswordField, EmailField, Form
-from wtforms.validators import DataRequired, Length, EqualTo, Email, StopValidation, ValidationError
+from wtforms import StringField, PasswordField, EmailField, Form, FieldList
+from wtforms.validators import DataRequired, Length, EqualTo, Email, StopValidation, ValidationError, URL
 from models import User
 from werkzeug.security import check_password_hash
 from flask import session
@@ -92,5 +92,23 @@ class EmailForm(Form):
     email = EmailField('email', validators=[
         DataRequired(message="missing email"), 
         Email(),
+        ]
+    )
+
+
+class PhotoCreateForm(Form):
+    def brandValidate(self, field):
+        if field.data not in ["lifeFourCuts", "selpix", "photoSignature", "photoism", "haruFilm"]:
+            raise StopValidation(message='brand not available')
+
+
+    QRcodeUrl = StringField('QRcodeUrl', validators=[
+        DataRequired(message="missing QRcode URL"),
+        URL(),
+        ]
+    )
+    brand = StringField('QRcodeUrl', validators=[
+        DataRequired(message="missing brand"),
+        brandValidate,
         ]
     )
