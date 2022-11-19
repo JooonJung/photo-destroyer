@@ -1,6 +1,8 @@
 import ast
 import urllib.request as req
+
 from config import BASE_DIR
+
 
 def formatTagsList(tagsList):
   tags = []
@@ -44,11 +46,22 @@ def saveImageFromPhotoism(url, filename):
   req.urlretrieve(formattedUrl, BASE_DIR + f"/static/upload/{filename}.jpg")
 
 
+def saveImageFromPhotoSignature(url, filename):
+  ''' 포토 시그니처 링크 사진 저장'''
+  ''' 이미지 파일명이 전부 a인지 아닌지 검토해볼 필요는 있음 '''
+
+  splitUrl = url.split("/")
+  splitUrl[-1] = "a.jpg"
+  formattedUrl = "/".join(splitUrl)
+  req.urlretrieve(formattedUrl, BASE_DIR + f"/static/upload/{filename}.jpg")
+
+
 def saveImageAndReturnUrl(brand, QRcodeUrl, filename):
   if brand == "lifeFourCuts":
     saveImageFromLifeFourCuts(QRcodeUrl, filename)
   elif brand == "photoism":
     saveImageFromPhotoism(QRcodeUrl, filename)
+  elif brand == "photoSignature":
+    saveImageFromPhotoSignature(QRcodeUrl, filename)
   
   return f"./static/upload/{filename}.jpg"
-
