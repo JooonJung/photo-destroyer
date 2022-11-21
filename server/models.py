@@ -67,6 +67,7 @@ class User(db.Model):
         for album in self.possessingAlbums:
             tags += strTagToTagsList(album.tags)
         self.tags = tagsListToStrTag(tags)
+        self.updatedAt = datetime.datetime.now()
 
 
 class Photo(db.Model):
